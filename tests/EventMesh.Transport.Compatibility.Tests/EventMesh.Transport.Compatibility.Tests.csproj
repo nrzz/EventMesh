@@ -1,0 +1,47 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <IsPackable>false</IsPackable>
+    <CollectCoverage>true</CollectCoverage>
+    <CoverletOutputFormat>cobertura</CoverletOutputFormat>
+    <CoverletOutput>$(MSBuildProjectDirectory)/TestResults/coverage/</CoverletOutput>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="coverlet.collector" />
+    <PackageReference Include="coverlet.msbuild">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+    <PackageReference Include="FluentAssertions" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection" />
+    <PackageReference Include="Microsoft.Extensions.Logging" />
+    <PackageReference Include="Testcontainers.Kafka" />
+    <PackageReference Include="Testcontainers.RabbitMq" />
+    <PackageReference Include="Testcontainers.Nats" />
+    <PackageReference Include="Testcontainers.Redis" />
+    <PackageReference Include="Testcontainers" />
+    <PackageReference Include="Testcontainers.PubSub" />
+    <PackageReference Include="xunit" />
+    <PackageReference Include="xunit.runner.visualstudio" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\EventMesh.Abstractions\EventMesh.Abstractions.csproj" />
+    <ProjectReference Include="..\..\src\EventMesh.Core\EventMesh.Core.csproj" />
+    <ProjectReference Include="..\..\src\EventMesh.Transport.InMemory\EventMesh.Transport.InMemory.csproj" />
+    <ProjectReference Include="..\..\src\EventMesh.Transport.Kafka\EventMesh.Transport.Kafka.csproj" />
+    <ProjectReference Include="..\..\src\EventMesh.Transport.RabbitMQ\EventMesh.Transport.RabbitMQ.csproj" />
+    <ProjectReference Include="..\..\src\EventMesh.Transport.Nats\EventMesh.Transport.Nats.csproj" />
+    <ProjectReference Include="..\..\src\EventMesh.Transport.RedisStreams\EventMesh.Transport.RedisStreams.csproj" />
+    <ProjectReference Include="..\..\src\EventMesh.Transport.AmazonSqs\EventMesh.Transport.AmazonSqs.csproj" />
+    <ProjectReference Include="..\..\src\EventMesh.Transport.GooglePubSub\EventMesh.Transport.GooglePubSub.csproj" />
+    <ProjectReference Include="..\..\src\EventMesh.Transport.AzureServiceBus\EventMesh.Transport.AzureServiceBus.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Using Include="Xunit" />
+  </ItemGroup>
+
+</Project>

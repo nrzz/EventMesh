@@ -1,0 +1,73 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: eventmesh-management-api
+  namespace: eventmesh
+  labels:
+    app.kubernetes.io/name: eventmesh-management-api
+    app.kubernetes.io/part-of: eventmesh
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: eventmesh-management-api
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: eventmesh-management-api
+        app.kubernetes.io/part-of: eventmesh
+    spec:
+      containers:
+        - name: management-api
+          image: ghcr.io/eventmesh/management-api:latest
+          imagePullPolicy: IfNotPresent
+          ports:
+            - name: http
+              containerPort: 8080
+              protocol: TCP
+          env:
+            - name: ASPNETCORE_URLS
+              value: http://+:8080
+            - name: EVENTMESH_API_KEYS
+              valueFrom:
+                secretKeyRef:
+                  name: eventmesh-management-api
+                  key: api-keys
+                  optional: true
+            - name: EVENTMESH_JWT_AUTHORITY
+              valueFrom:
+                configMapKeyRef:
+                  name: eventmesh-management-api
+                  key: jwt-authority
+                  optional: true
+            - name: EVENTMESH_JWT_AUDIENCE
+              valueFrom:
+                configMapKeyRef:
+                  name: eventmesh-management-api
+                  key: jwt-audience
+                  optional: true
+            - name: VAULT_ADDR
+              valueFrom:
+                configMapKeyRef:
+                  name: eventmesh-management-api
+                  key: vault-addr
+                  optional: true
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: http
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: http
+            initialDelaySeconds: 15
+            periodSeconds: 20
+          resources:
+            requests:
+              cpu: 100m
+              memory: 128Mi
+            limits:
+              cpu: 500m
+              memory: 512Mi

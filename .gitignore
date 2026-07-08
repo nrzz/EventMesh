@@ -1,0 +1,60 @@
+## .NET
+bin/
+obj/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+*.userprefs
+.vs/
+*.nupkg
+*.snupkg
+project.lock.json
+project.fragment.lock.json
+artifacts/
+*.DotSettings.user
+
+## Test results
+TestResults/
+coverage/
+*.coverage
+*.coveragexml
+
+## Node / Dashboard
+node_modules/
+dist/
+build/
+.npm
+*.local
+
+## IDE
+.idea/
+*.swp
+*.swo
+*~
+
+## OS
+.DS_Store
+Thumbs.db
+
+## Docker
+.docker/
+
+## Secrets
+*.env
+*.env.local
+appsettings.*.local.json
+secrets/
+
+## Terraform
+.terraform/
+*.tfstate
+*.tfstate.*
+.terraform.lock.hcl
+
+## Benchmarks
+BenchmarkDotNet.Artifacts/
+
+## Logs
+logs/
+*.log

@@ -1,0 +1,23 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="BenchmarkDotNet" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection" />
+    <PackageReference Include="Microsoft.Extensions.Hosting.Abstractions" />
+    <PackageReference Include="Microsoft.Extensions.Logging" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\EventMesh.Abstractions\EventMesh.Abstractions.csproj" />
+    <ProjectReference Include="..\..\src\EventMesh.Core\EventMesh.Core.csproj" />
+    <ProjectReference Include="..\..\src\EventMesh.Transport.InMemory\EventMesh.Transport.InMemory.csproj" />
+  </ItemGroup>
+
+</Project>

@@ -1,0 +1,44 @@
+<Solution>
+  <Folder Name="/benchmarks/">
+    <Project Path="benchmarks/EventMesh.Benchmarks/EventMesh.Benchmarks.csproj" />
+  </Folder>
+  <Folder Name="/cli/">
+    <Project Path="cli/EventMesh.Cli/EventMesh.Cli.csproj" />
+  </Folder>
+  <Folder Name="/plugins/">
+    <Project Path="plugins/EventMesh.Plugin.Compression.Gzip/EventMesh.Plugin.Compression.Gzip.csproj" />
+    <Project Path="plugins/EventMesh.Plugin.Compression.Zstd/EventMesh.Plugin.Compression.Zstd.csproj" />
+    <Project Path="plugins/EventMesh.Plugin.Encryption.AesGcm/EventMesh.Plugin.Encryption.AesGcm.csproj" />
+    <Project Path="plugins/EventMesh.Plugin.Exporter.Prometheus/EventMesh.Plugin.Exporter.Prometheus.csproj" />
+  </Folder>
+  <Folder Name="/samples/">
+    <Project Path="samples/BasicPublishSubscribe/BasicPublishSubscribe.csproj" />
+    <Project Path="samples/BrokerSwitching/BrokerSwitching.csproj" />
+  </Folder>
+  <Folder Name="/sdk/">
+    <Project Path="sdk/EventMesh.Plugin.Sdk/EventMesh.Plugin.Sdk.csproj" />
+  </Folder>
+  <Folder Name="/src/">
+    <Project Path="src/EventMesh.Abstractions/EventMesh.Abstractions.csproj" />
+    <Project Path="src/EventMesh.Core/EventMesh.Core.csproj" />
+    <Project Path="src/EventMesh.Management.Api/EventMesh.Management.Api.csproj" />
+    <Project Path="src/EventMesh.SchemaRegistry/EventMesh.SchemaRegistry.csproj" />
+    <Project Path="src/EventMesh.Security/EventMesh.Security.csproj" />
+    <Project Path="src/EventMesh.Storage.PostgreSql/EventMesh.Storage.PostgreSql.csproj" />
+    <Project Path="src/EventMesh.Storage.Redis/EventMesh.Storage.Redis.csproj" />
+    <Project Path="src/EventMesh.Transport.AmazonSqs/EventMesh.Transport.AmazonSqs.csproj" />
+    <Project Path="src/EventMesh.Transport.AzureServiceBus/EventMesh.Transport.AzureServiceBus.csproj" />
+    <Project Path="src/EventMesh.Transport.GooglePubSub/EventMesh.Transport.GooglePubSub.csproj" />
+    <Project Path="src/EventMesh.Transport.InMemory/EventMesh.Transport.InMemory.csproj" />
+    <Project Path="src/EventMesh.Transport.Kafka/EventMesh.Transport.Kafka.csproj" />
+    <Project Path="src/EventMesh.Transport.Nats/EventMesh.Transport.Nats.csproj" />
+    <Project Path="src/EventMesh.Transport.RabbitMQ/EventMesh.Transport.RabbitMQ.csproj" />
+    <Project Path="src/EventMesh.Transport.RedisStreams/EventMesh.Transport.RedisStreams.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/EventMesh.Abstractions.Tests/EventMesh.Abstractions.Tests.csproj" />
+    <Project Path="tests/EventMesh.Core.Tests/EventMesh.Core.Tests.csproj" />
+    <Project Path="tests/EventMesh.Integration.Tests/EventMesh.Integration.Tests.csproj" />
+    <Project Path="tests/EventMesh.Transport.Compatibility.Tests/EventMesh.Transport.Compatibility.Tests.csproj" />
+  </Folder>
+</Solution>

@@ -1,0 +1,12 @@
+apiVersion: v2
+name: eventmesh
+description: Helm chart for deploying EventMesh management API and supporting resources
+type: application
+version: 0.1.0
+appVersion: "0.1.0"
+keywords:
+  - eventmesh
+  - messaging
+  - event-driven
+maintainers:
+  - name: EventMesh Contributors

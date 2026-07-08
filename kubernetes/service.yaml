@@ -1,0 +1,17 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: eventmesh-management-api
+  namespace: eventmesh
+  labels:
+    app.kubernetes.io/name: eventmesh-management-api
+    app.kubernetes.io/part-of: eventmesh
+spec:
+  type: ClusterIP
+  selector:
+    app.kubernetes.io/name: eventmesh-management-api
+  ports:
+    - name: http
+      port: 80
+      targetPort: http
+      protocol: TCP

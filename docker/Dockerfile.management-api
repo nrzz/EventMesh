@@ -1,0 +1,34 @@
+# Build stage
+FROM mcr.microsoft.com/dotnet/sdk:10.0-preview AS build
+WORKDIR /src
+
+COPY Directory.Build.props Directory.Packages.props ./
+COPY src/EventMesh.Abstractions/EventMesh.Abstractions.csproj src/EventMesh.Abstractions/
+COPY src/EventMesh.Core/EventMesh.Core.csproj src/EventMesh.Core/
+COPY sdk/EventMesh.Plugin.Sdk/EventMesh.Plugin.Sdk.csproj sdk/EventMesh.Plugin.Sdk/
+COPY src/EventMesh.Management.Api/EventMesh.Management.Api.csproj src/EventMesh.Management.Api/
+
+RUN dotnet restore src/EventMesh.Management.Api/EventMesh.Management.Api.csproj
+
+COPY src/EventMesh.Abstractions/ src/EventMesh.Abstractions/
+COPY src/EventMesh.Core/ src/EventMesh.Core/
+COPY sdk/EventMesh.Plugin.Sdk/ sdk/EventMesh.Plugin.Sdk/
+COPY src/EventMesh.Management.Api/ src/EventMesh.Management.Api/
+
+RUN dotnet publish src/EventMesh.Management.Api/EventMesh.Management.Api.csproj \
+    -c Release -o /app/publish --no-restore
+
+# Runtime stage
+FROM mcr.microsoft.com/dotnet/aspnet:10.0-preview AS runtime
+WORKDIR /app
+
+ENV ASPNETCORE_URLS=http://+:8080
+ENV ASPNETCORE_ENVIRONMENT=Production
+
+COPY --from=build /app/publish .
+
+EXPOSE 8080
+HEALTHCHECK --interval=30s --timeout=5s --retries=3 \
+  CMD wget --spider -q http://localhost:8080/health || exit 1
+
+ENTRYPOINT ["dotnet", "EventMesh.Management.Api.dll"]

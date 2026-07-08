@@ -1,0 +1,202 @@
+services:
+  postgres:
+    image: postgres:17-alpine
+    container_name: eventmesh-postgres
+    environment:
+      POSTGRES_DB: eventmesh
+      POSTGRES_USER: eventmesh
+      POSTGRES_PASSWORD: eventmesh
+    ports:
+      - "5432:5432"
+    volumes:
+      - eventmesh-postgres-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U eventmesh -d eventmesh"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+    networks:
+      - eventmesh
+
+  redis:
+    image: redis:7-alpine
+    container_name: eventmesh-redis
+    command: redis-server --appendonly yes
+    ports:
+      - "6379:6379"
+    volumes:
+      - eventmesh-redis-data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 5s
+    networks:
+      - eventmesh
+
+  rabbitmq:
+    image: rabbitmq:4-management-alpine
+    container_name: eventmesh-rabbitmq
+    environment:
+      RABBITMQ_DEFAULT_USER: eventmesh
+      RABBITMQ_DEFAULT_PASS: eventmesh
+      RABBITMQ_DEFAULT_VHOST: eventmesh
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    volumes:
+      - eventmesh-rabbitmq-data:/var/lib/rabbitmq
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "-q", "ping"]
+      interval: 15s
+      timeout: 10s
+      retries: 5
+      start_period: 30s
+    networks:
+      - eventmesh
+
+  kafka:
+    image: apache/kafka:3.9.0
+    container_name: eventmesh-kafka
+    environment:
+      KAFKA_NODE_ID: 1
+      KAFKA_PROCESS_ROLES: broker,controller
+      KAFKA_LISTENERS: PLAINTEXT://0.0.0.0:9092,CONTROLLER://0.0.0.0:9093
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://localhost:9092
+      KAFKA_CONTROLLER_LISTENER_NAMES: CONTROLLER
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT
+      KAFKA_CONTROLLER_QUORUM_VOTERS: 1@localhost:9093
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
+      KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS: 0
+      KAFKA_LOG_DIRS: /var/lib/kafka/data
+      CLUSTER_ID: eventmesh-kafka-cluster-01
+    ports:
+      - "9092:9092"
+    volumes:
+      - eventmesh-kafka-data:/var/lib/kafka/data
+    healthcheck:
+      test: ["CMD-SHELL", "/opt/kafka/bin/kafka-broker-api-versions.sh --bootstrap-server localhost:9092 > /dev/null 2>&1"]
+      interval: 15s
+      timeout: 10s
+      retries: 5
+      start_period: 30s
+    networks:
+      - eventmesh
+
+  nats:
+    image: nats:2.10-alpine
+    container_name: eventmesh-nats
+    command: ["--jetstream", "--store_dir=/data", "--http_port=8222"]
+    ports:
+      - "4222:4222"
+      - "8222:8222"
+    volumes:
+      - eventmesh-nats-data:/data
+    healthcheck:
+      test: ["CMD", "wget", "--spider", "-q", "http://localhost:8222/healthz"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 5s
+    networks:
+      - eventmesh
+
+  localstack:
+    image: localstack/localstack:4.0
+    container_name: eventmesh-localstack
+    environment:
+      SERVICES: sqs
+      DEFAULT_REGION: us-east-1
+      AWS_ACCESS_KEY_ID: test
+      AWS_SECRET_ACCESS_KEY: test
+      DEBUG: 0
+    ports:
+      - "4566:4566"
+    volumes:
+      - eventmesh-localstack-data:/var/lib/localstack
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:4566/_localstack/health"]
+      interval: 15s
+      timeout: 10s
+      retries: 5
+      start_period: 15s
+    networks:
+      - eventmesh
+
+  management-api:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile.management-api
+    container_name: eventmesh-management-api
+    environment:
+      ASPNETCORE_ENVIRONMENT: Production
+      ASPNETCORE_URLS: http://+:8080
+      EventMesh__DefaultTransport: rabbitmq
+      EventMesh__TransportSettings__rabbitmq__Host: rabbitmq
+      EventMesh__TransportSettings__rabbitmq__Port: "5672"
+      EventMesh__TransportSettings__rabbitmq__VirtualHost: eventmesh
+      EventMesh__TransportSettings__rabbitmq__Username: eventmesh
+      EventMesh__TransportSettings__rabbitmq__Password: eventmesh
+      EventMesh__TransportSettings__rabbitmq__ManagementUrl: http://rabbitmq:15672
+      EventMesh__TransportSettings__kafka__BootstrapServers: kafka:9092
+      EventMesh__TransportSettings__nats__Url: nats://nats:4222
+      EventMesh__TransportSettings__nats__MonitoringUrl: http://nats:8222
+      EventMesh__TransportSettings__redis__ConnectionString: redis:6379
+      EventMesh__TransportSettings__postgres__ConnectionString: Host=postgres;Port=5432;Database=eventmesh;Username=eventmesh;Password=eventmesh
+      ManagementApi__ApiKeys__0: dev-api-key-change-in-production
+    ports:
+      - "5080:8080"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+      kafka:
+        condition: service_healthy
+      nats:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "--spider", "-q", "http://localhost:8080/health"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
+    networks:
+      - eventmesh
+
+  dashboard:
+    build:
+      context: ../dashboard
+      dockerfile: Dockerfile
+    container_name: eventmesh-dashboard
+    ports:
+      - "3000:80"
+    depends_on:
+      management-api:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "--spider", "-q", "http://localhost/"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+    networks:
+      - eventmesh
+
+volumes:
+  eventmesh-postgres-data:
+  eventmesh-redis-data:
+  eventmesh-rabbitmq-data:
+  eventmesh-kafka-data:
+  eventmesh-nats-data:
+  eventmesh-localstack-data:
+
+networks:
+  eventmesh:
+    driver: bridge
