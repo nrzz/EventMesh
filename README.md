@@ -1,11 +1,10 @@
 # EventMesh
 
-[![Build](https://img.shields.io/github/actions/workflow/status/eventmesh/eventmesh/ci.yml?branch=main&label=build)](https://github.com/eventmesh/eventmesh/actions/workflows/ci.yml)
-[![Benchmarks](https://img.shields.io/github/actions/workflow/status/eventmesh/eventmesh/benchmark.yml?branch=main&label=benchmarks)](https://github.com/eventmesh/eventmesh/actions/workflows/benchmark.yml)
+[![Build](https://img.shields.io/github/actions/workflow/status/nrzz/EventMesh/ci.yml?branch=main&label=build)](https://github.com/nrzz/EventMesh/actions/workflows/ci.yml)
+[![Benchmarks](https://img.shields.io/github/actions/workflow/status/nrzz/EventMesh/benchmark.yml?branch=main&label=benchmarks)](https://github.com/nrzz/EventMesh/actions/workflows/benchmark.yml)
 [![NuGet](https://img.shields.io/nuget/v/EventMesh.Core.svg)](https://www.nuget.org/packages/EventMesh.Core)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 [![.NET](https://img.shields.io/badge/.NET-10.0-512BD4)](https://dotnet.microsoft.com/)
-[![Discord](https://img.shields.io/badge/Discord-join-5865F2)](https://discord.gg/eventmesh)
 [![Docs](https://img.shields.io/badge/docs-architecture-0A7ACA)](ARCHITECTURE.md)
 
 **EventMesh** is a broker-agnostic distributed messaging platform for .NET. Write your application once against a unified API and deploy against RabbitMQ, Kafka, Redis Streams, Azure Service Bus, AWS SQS, Google Pub/Sub, or NATS JetStream without changing business logic.
