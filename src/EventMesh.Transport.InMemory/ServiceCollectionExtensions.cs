@@ -26,7 +26,8 @@ public static class ServiceCollectionExtensions
 
         services.TryAddSingleton<InMemoryMessageStore>();
         services.TryAddSingleton<InMemoryBrokerState>();
-        services.TryAddSingleton<IBrokerTransportFactory, InMemoryTransportFactory>();
+        services.TryAddSingleton<InMemoryTransportFactory>();
+        services.TryAddSingleton<IBrokerTransportFactory>(sp => sp.GetRequiredService<InMemoryTransportFactory>());
         services.TryAddSingleton<IBrokerTransport, InMemoryBrokerTransport>();
 
         return services;

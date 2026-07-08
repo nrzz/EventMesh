@@ -215,7 +215,19 @@ public sealed class MessageBus : IMessageBus
             _loggerFactory.CreateLogger<MessageConsumer<T>>());
 
         _consumerManager.Add(consumer);
-        return Task.FromResult<IMessageConsumer>(consumer);
+        return StartConsumerAsync(consumer, cancellationToken);
+    }
+
+    private static async Task<IMessageConsumer> StartConsumerAsync(
+        IMessageConsumer consumer,
+        CancellationToken cancellationToken)
+    {
+        if (!consumer.IsRunning)
+        {
+            await consumer.StartAsync(cancellationToken);
+        }
+
+        return consumer;
     }
 
     private async Task PublishTerminalAsync<T>(PublishContext<T> context, CancellationToken cancellationToken)

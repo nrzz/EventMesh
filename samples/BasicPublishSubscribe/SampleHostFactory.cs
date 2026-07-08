@@ -20,8 +20,9 @@ internal static class SampleHostFactory
         IHost? builtHost = null;
         hostBuilder.Services.AddEventMesh(mesh =>
         {
-            mesh.UseTransport(new DeferredTransportFactory(() =>
-                builtHost!.Services.GetRequiredService<InMemoryTransportFactory>()));
+            mesh.UseTransport(new DeferredTransportFactory(
+                () => builtHost!.Services.GetRequiredService<InMemoryTransportFactory>(),
+                "inmemory"));
         });
         hostBuilder.Services.AddSingleton<OrderCreatedHandler>();
 
@@ -34,13 +35,15 @@ internal static class SampleHostFactory
 internal sealed class DeferredTransportFactory : IBrokerTransportFactory
 {
     private readonly Func<IBrokerTransportFactory> _factoryResolver;
+    private readonly string _transportName;
 
-    public DeferredTransportFactory(Func<IBrokerTransportFactory> factoryResolver)
+    public DeferredTransportFactory(Func<IBrokerTransportFactory> factoryResolver, string transportName)
     {
         _factoryResolver = factoryResolver;
+        _transportName = transportName;
     }
 
-    public string TransportName => _factoryResolver().TransportName;
+    public string TransportName => _transportName;
 
     public Task<IBrokerTransport> CreateTransportAsync(
         IReadOnlyDictionary<string, string>? settings = null,

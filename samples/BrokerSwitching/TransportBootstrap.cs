@@ -42,13 +42,15 @@ internal static class TransportBootstrap
 internal sealed class DeferredTransportFactory : IBrokerTransportFactory
 {
     private readonly Func<IBrokerTransportFactory> _factoryResolver;
+    private readonly string _transportName;
 
-    public DeferredTransportFactory(Func<IBrokerTransportFactory> factoryResolver)
+    public DeferredTransportFactory(Func<IBrokerTransportFactory> factoryResolver, string transportName)
     {
         _factoryResolver = factoryResolver;
+        _transportName = transportName;
     }
 
-    public string TransportName => _factoryResolver().TransportName;
+    public string TransportName => _transportName;
 
     public Task<IBrokerTransport> CreateTransportAsync(
         IReadOnlyDictionary<string, string>? settings = null,
@@ -85,8 +87,10 @@ public static class SampleHostFactory
         IHost? builtHost = null;
         hostBuilder.Services.AddEventMesh(mesh =>
         {
-            mesh.UseTransport(new DeferredTransportFactory(() =>
-                TransportBootstrap.ResolveFactory(builtHost!.Services, configuration)));
+            var transportName = configuration["EventMesh:Transport"] ?? "inmemory";
+            mesh.UseTransport(new DeferredTransportFactory(
+                () => TransportBootstrap.ResolveFactory(builtHost!.Services, configuration),
+                transportName));
         });
         hostBuilder.Services.AddSingleton<InventoryUpdatedHandler>();
 

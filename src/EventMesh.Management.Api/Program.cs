@@ -5,6 +5,8 @@ using EventMesh.Management.Api.Auth;
 using EventMesh.Management.Api.Configuration;
 using EventMesh.Management.Api.Hubs;
 using EventMesh.Management.Api.Services;
+using EventMesh.Management.Api.Infrastructure;
+using EventMesh.Transport.InMemory;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using OpenTelemetry.Metrics;
@@ -16,10 +18,15 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.Configure<EventMeshOptions>(builder.Configuration.GetSection("EventMesh"));
 builder.Services.Configure<ManagementApiOptions>(builder.Configuration.GetSection(ManagementApiOptions.SectionName));
 
-builder.Services.AddEventMesh(mesh => mesh.Configure(options =>
-{
-    builder.Configuration.GetSection("EventMesh").Bind(options);
-}));
+builder.Services.AddInMemoryTransport();
+var transportFactoryHolder = new TransportFactoryHolder();
+builder.Services.AddSingleton(transportFactoryHolder);
+builder.Services.AddEventMesh(mesh => mesh
+    .UseTransport(new DeferredTransportFactory(transportFactoryHolder, "inmemory"))
+    .Configure(options =>
+    {
+        builder.Configuration.GetSection("EventMesh").Bind(options);
+    }));
 
 builder.Services.AddSingleton<IMeshObservationService, MeshObservationService>();
 builder.Services.AddHostedService<ObservationRefreshHostedService>();
@@ -123,6 +130,8 @@ builder.Services.AddOpenTelemetry()
     });
 
 var app = builder.Build();
+
+transportFactoryHolder.Factory = app.Services.GetRequiredService<InMemoryTransportFactory>();
 
 app.UseCors();
 
