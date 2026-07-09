@@ -110,17 +110,17 @@ jobs:
           /p:CoverletOutput=./TestResults/coverage/
 
       - name: Enforce milestone coverage gate
-        run: >
-          dotnet test tests/EventMesh.Integration.Tests/EventMesh.Integration.Tests.csproj
-          --configuration Release
-          --no-build
-          --verbosity normal
-          /p:CollectCoverage=true
-          /p:CoverletOutputFormat=cobertura
-          /p:CoverletOutput=./TestResults/milestone-coverage/
-          /p:Include="[EventMesh.Plugin.Compression.Gzip]*,[EventMesh.Plugin.Compression.Zstd]*,[EventMesh.Plugin.Encryption.AesGcm]*,[EventMesh.Plugin.Exporter.Prometheus]*,[EventMesh.SchemaRegistry]*,[EventMesh.Security]*,[EventMesh.Plugin.Sdk]*"
-          /p:Threshold=50
-          /p:ThresholdType=line
+        run: |
+          dotnet test tests/EventMesh.Integration.Tests/EventMesh.Integration.Tests.csproj \
+            --configuration Release \
+            --no-build \
+            --verbosity normal \
+            '/p:CollectCoverage=true' \
+            '/p:CoverletOutputFormat=cobertura' \
+            '/p:CoverletOutput=./TestResults/milestone-coverage/' \
+            '/p:Include=[EventMesh.Plugin.Compression.Gzip]*,[EventMesh.Plugin.Compression.Zstd]*,[EventMesh.Plugin.Encryption.AesGcm]*,[EventMesh.Plugin.Exporter.Prometheus]*,[EventMesh.SchemaRegistry]*,[EventMesh.Security]*,[EventMesh.Plugin.Sdk]*' \
+            '/p:Threshold=50' \
+            '/p:ThresholdType=line'
 
       - name: Upload test results
         if: always()
