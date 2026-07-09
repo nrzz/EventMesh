@@ -36,7 +36,7 @@
   <ItemGroup>
     <!-- Storage -->
     <PackageVersion Include="Npgsql" Version="9.0.2" />
-    <PackageVersion Include="Dapper" Version="2.1.35" />
+    <PackageVersion Include="Dapper" Version="2.1.79" />
     <PackageVersion Include="StackExchange.Redis" Version="2.8.16" />
   </ItemGroup>
   <ItemGroup>
