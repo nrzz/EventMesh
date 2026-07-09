@@ -102,7 +102,8 @@ public sealed class AesGcmEncryptionPlugin : PluginBase, IEncryptionPlugin
         var keyValue = Environment.GetEnvironmentVariable("EVENTMESH_ENCRYPTION_KEY");
         if (string.IsNullOrWhiteSpace(keyValue))
         {
-            return RandomNumberGenerator.GetBytes(KeySize);
+            throw new InvalidOperationException(
+                "EVENTMESH_ENCRYPTION_KEY must be set to a base64-encoded 32-byte AES key when no key is provided to the plugin constructor.");
         }
 
         try

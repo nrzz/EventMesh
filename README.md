@@ -2,7 +2,7 @@
 
 [![Build](https://img.shields.io/github/actions/workflow/status/nrzz/EventMesh/ci.yml?branch=main&label=build)](https://github.com/nrzz/EventMesh/actions/workflows/ci.yml)
 [![Benchmarks](https://img.shields.io/github/actions/workflow/status/nrzz/EventMesh/benchmark.yml?branch=main&label=benchmarks)](https://github.com/nrzz/EventMesh/actions/workflows/benchmark.yml)
-[![NuGet](https://img.shields.io/nuget/v/EventMesh.Core.svg)](https://www.nuget.org/packages/EventMesh.Core)
+[![NuGet](https://img.shields.io/nuget/v/EventMesh.Core.svg?label=NuGet)](https://www.nuget.org/packages/EventMesh.Core/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 [![.NET](https://img.shields.io/badge/.NET-10.0-512BD4)](https://dotnet.microsoft.com/)
 [![Docs](https://img.shields.io/badge/docs-architecture-0A7ACA)](ARCHITECTURE.md)
@@ -11,13 +11,15 @@
 
 EventMesh combines the developer experience of MassTransit and NServiceBus with the interoperability of CloudEvents, the observability of OpenTelemetry, and a capability-driven emulation engine that bridges broker differences transparently.
 
+> **Project status:** EventMesh is under active development (v0.1.0). NuGet packages are published on [tagged releases](https://github.com/nrzz/EventMesh/releases). Broker adapters are **compatibility-tested (beta)** — see the [Broker Capability Matrix](docs/broker-capability-matrix.md) for current coverage.
+
 ## Features
 
 - **Unified messaging API** — `PublishAsync`, `ScheduleAsync`, `RequestAsync`, `ReplayAsync`, and `SubscribeAsync` on a single `IMessageBus` abstraction
-- **Seven production transports** — RabbitMQ, Kafka, Redis Streams, Azure Service Bus, AWS SQS, Google Pub/Sub, NATS JetStream, plus InMemory for tests and benchmarks
+- **Seven broker adapters (compatibility-tested, beta)** — RabbitMQ, Kafka, Redis Streams, Azure Service Bus, AWS SQS, Google Pub/Sub, NATS JetStream, plus InMemory for tests and benchmarks
 - **Capability model** — Each broker declares supported features; the runtime emulates missing capabilities where safe
 - **Reliability patterns** — Transactional outbox, idempotent inbox, retry policies, dead-letter queues, and saga support
-- **CloudEvents envelope** — Canonical wire format with pluggable serializers (JSON, MessagePack, Protobuf, Avro)
+- **CloudEvents envelope** — Canonical wire format with pluggable serializers (JSON today; MessagePack, Protobuf, and Avro planned)
 - **Observability-first** — OpenTelemetry traces, Prometheus metrics, structured logs with correlation and causation IDs
 - **Control plane** — Optional management API, React dashboard, and `eventmesh` CLI for operations and visibility
 - **Plugin architecture** — Extend serialization, compression, encryption, authentication, and exporters via versioned plugins
@@ -36,45 +38,85 @@ dotnet add package EventMesh.Core
 dotnet add package EventMesh.Transport.RabbitMQ
 ```
 
+NuGet packages are published when a version tag (for example `v0.1.0`) is pushed. Until the first release, reference projects from this repository.
+
 ### Start local infrastructure
 
 ```bash
 docker compose -f docker/docker-compose.yml up -d
 ```
 
-### Configure and publish
+### Configure, subscribe, and publish
+
+EventMesh registers a transport factory, wires it through `UseTransport(...)`, and exposes `IMessageBus` from DI. The deferred factory pattern below matches the samples in `samples/BrokerSwitching` and avoids a host-build cycle:
 
 ```csharp
+using EventMesh.Abstractions.Messaging;
+using EventMesh.Abstractions.Transport;
 using EventMesh.Core;
 using EventMesh.Transport.RabbitMQ;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 
-var builder = WebApplication.CreateBuilder(args);
+var hostBuilder = Host.CreateApplicationBuilder();
 
-builder.Services
-    .AddEventMesh(options =>
+// 1. Register the broker transport factory
+hostBuilder.Services.AddRabbitMqTransport(options =>
+{
+    options.HostName = "localhost";
+    options.Port = 5672;
+    options.UserName = "eventmesh";
+    options.Password = "eventmesh";
+    options.VirtualHost = "eventmesh";
+});
+
+// 2. Register EventMesh and select the transport
+IHost? host = null;
+hostBuilder.Services.AddEventMesh(mesh =>
+    mesh.UseTransport(new DeferredTransportFactory(
+        () => host!.Services.GetRequiredService<RabbitMqTransportFactory>(),
+        "rabbitmq")));
+
+host = hostBuilder.Build();
+await host.StartAsync();
+
+// 3. Publish and consume
+var bus = host.Services.GetRequiredService<IMessageBus>();
+
+await using var consumer = await bus.SubscribeAsync<OrderCreated>(
+    async (order, ct) => Console.WriteLine($"Order {order.OrderId}: {order.Amount:C}"),
+    cancellationToken: CancellationToken.None);
+
+await bus.PublishAsync(new OrderCreated(Guid.NewGuid(), 42.50m));
+
+public sealed record OrderCreated(Guid OrderId, decimal Amount);
+
+internal sealed class DeferredTransportFactory : IBrokerTransportFactory
+{
+    private readonly Func<IBrokerTransportFactory> _factoryResolver;
+    private readonly string _transportName;
+
+    public DeferredTransportFactory(Func<IBrokerTransportFactory> factoryResolver, string transportName)
     {
-        options.UseRabbitMq(rabbit =>
-        {
-            rabbit.Host = "localhost";
-            rabbit.Port = 5672;
-            rabbit.Username = "eventmesh";
-            rabbit.Password = "eventmesh";
-        });
-    })
-    .AddMessageHandler<OrderCreatedHandler>();
+        _factoryResolver = factoryResolver;
+        _transportName = transportName;
+    }
 
-var app = builder.Build();
-await app.RunAsync();
+    public string TransportName => _transportName;
 
-// In your application code:
-await bus.PublishAsync(new OrderCreated(orderId, customerId));
-
-await bus.ScheduleAsync(new PaymentReminder(orderId), TimeSpan.FromMinutes(5));
-
-var response = await bus.RequestAsync<CreateOrder, OrderResponse>(new CreateOrder(items));
-
-await bus.ReplayAsync("orders.created", from: DateTimeOffset.UtcNow.AddHours(-1));
+    public Task<IBrokerTransport> CreateTransportAsync(
+        IReadOnlyDictionary<string, string>? settings = null,
+        CancellationToken cancellationToken = default) =>
+        _factoryResolver().CreateTransportAsync(settings, cancellationToken);
+}
 ```
+
+Optional helpers:
+
+- `AddMessageHandler<THandler>()` registers a typed handler and auto-subscribes it at startup.
+- `EnableOutbox()`, `EnableInbox()`, and `EnableReplay()` opt into reliability features on the fluent builder.
+
+See `samples/BasicPublishSubscribe` (InMemory) and `samples/BrokerSwitching` (RabbitMQ) for runnable examples.
 
 ### Run tests
 
@@ -92,15 +134,16 @@ dotnet run --project benchmarks/EventMesh.Benchmarks -c Release
 
 ## Supported Brokers
 
-| Broker | Package | Native strengths |
-|--------|---------|------------------|
-| RabbitMQ | `EventMesh.Transport.RabbitMQ` | Routing keys, priority, TTL, delayed exchange |
-| Apache Kafka | `EventMesh.Transport.Kafka` | Partitions, consumer groups, offset replay |
-| Redis Streams | `EventMesh.Transport.RedisStreams` | Consumer groups, pending/claim recovery |
-| Azure Service Bus | `EventMesh.Transport.AzureServiceBus` | Sessions, transactions, native scheduling |
-| AWS SQS | `EventMesh.Transport.AmazonSqs` | FIFO queues, delay queues, redrive DLQ |
-| Google Pub/Sub | `EventMesh.Transport.GooglePubSub` | Ordering keys, seek-based replay |
-| NATS JetStream | `EventMesh.Transport.Nats` | Durable consumers, sequence/time replay |
+| Broker | Package | Status | Native strengths |
+|--------|---------|--------|------------------|
+| RabbitMQ | `EventMesh.Transport.RabbitMQ` | Compatibility-tested (beta) | Routing keys, priority, TTL, delayed exchange |
+| Apache Kafka | `EventMesh.Transport.Kafka` | Compatibility-tested (beta) | Partitions, consumer groups, offset replay |
+| Redis Streams | `EventMesh.Transport.RedisStreams` | Compatibility-tested (beta) | Consumer groups, pending/claim recovery |
+| Azure Service Bus | `EventMesh.Transport.AzureServiceBus` | Compatibility-tested (beta) | Sessions, transactions, native scheduling |
+| AWS SQS | `EventMesh.Transport.AmazonSqs` | Compatibility-tested (beta) | FIFO queues, delay queues, redrive DLQ |
+| Google Pub/Sub | `EventMesh.Transport.GooglePubSub` | Compatibility-tested (beta) | Ordering keys, seek-based replay |
+| NATS JetStream | `EventMesh.Transport.Nats` | Compatibility-tested (beta) | Durable consumers, sequence/time replay |
+| InMemory | `EventMesh.Transport.InMemory` | Stable for tests | Zero external dependencies |
 
 See the [Broker Capability Matrix](docs/broker-capability-matrix.md) for the full feature comparison and emulation behavior.
 
@@ -110,13 +153,13 @@ See the [Broker Capability Matrix](docs/broker-capability-matrix.md) for the ful
 EventMesh/
 ├── src/                    # Core libraries and transport adapters
 ├── tests/                  # Unit, integration, and compatibility tests
-├── benchmarks/               # BenchmarkDotNet performance suite
+├── benchmarks/             # BenchmarkDotNet performance suite
 ├── cli/                    # eventmesh CLI tool
 ├── sdk/                    # Plugin SDK
 ├── dashboard/              # React management UI (Milestone 10)
 ├── docker/                 # Local development infrastructure
 ├── docs/                   # Architecture docs and ADRs
-└── .github/workflows/      # CI and benchmark automation
+└── .github/workflows/      # CI, release, and benchmark automation
 ```
 
 ## Documentation

@@ -92,7 +92,7 @@ A formal threat model document will be published as part of Milestone 15 (Produc
 
 ## Security Updates
 
-Security advisories are published as [GitHub Security Advisories](https://github.com/eventmesh/eventmesh/security/advisories) and noted in [CHANGELOG.md](CHANGELOG.md).
+Security advisories are published as [GitHub Security Advisories](https://github.com/nrzz/EventMesh/security/advisories) and noted in [CHANGELOG.md](CHANGELOG.md).
 
 Subscribe to repository notifications or watch the `security` label to receive updates.
 

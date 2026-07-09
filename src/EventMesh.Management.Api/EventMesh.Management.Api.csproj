@@ -6,6 +6,7 @@
     <Nullable>enable</Nullable>
     <RootNamespace>EventMesh.Management.Api</RootNamespace>
     <Description>EventMesh management API and SignalR hub for operational visibility.</Description>
+    <IsPackable>false</IsPackable>
   </PropertyGroup>
 
   <ItemGroup>

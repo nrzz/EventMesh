@@ -29,6 +29,18 @@ public sealed class ManagementApiOptions
     /// Gets or sets the observation refresh interval in seconds.
     /// </summary>
     public int RefreshIntervalSeconds { get; set; } = 5;
+
+    /// <summary>
+    /// Gets or sets allowed CORS origins for the dashboard and browser clients.
+    /// Required outside Development when credentials are enabled.
+    /// </summary>
+    public IList<string> AllowedOrigins { get; set; } = [];
+
+    /// <summary>
+    /// Gets or sets a value indicating whether the API seeds and simulates demo broker data.
+    /// Disable in production to show only real transport observations.
+    /// </summary>
+    public bool DemoMode { get; set; }
 }
 
 /// <summary>
@@ -50,4 +62,10 @@ public sealed class JwtOptions
     /// Gets or sets a value indicating whether authentication is required for all endpoints.
     /// </summary>
     public bool RequireAuthentication { get; set; }
+
+    /// <summary>
+    /// Gets or sets the symmetric signing key used when <see cref="Authority"/> is not configured.
+    /// Required outside Development.
+    /// </summary>
+    public string SigningKey { get; set; } = string.Empty;
 }

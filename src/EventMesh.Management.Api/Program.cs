@@ -35,6 +35,10 @@ builder.Services.AddControllers();
 builder.Services.AddSignalR();
 builder.Services.AddOpenApi();
 
+var managementOptions = builder.Configuration
+    .GetSection(ManagementApiOptions.SectionName)
+    .Get<ManagementApiOptions>() ?? new ManagementApiOptions();
+
 builder.Services.AddCors(options =>
 {
     options.AddDefaultPolicy(policy =>
@@ -42,14 +46,25 @@ builder.Services.AddCors(options =>
         policy
             .AllowAnyHeader()
             .AllowAnyMethod()
-            .SetIsOriginAllowed(_ => true)
             .AllowCredentials();
+
+        if (managementOptions.AllowedOrigins.Count > 0)
+        {
+            policy.WithOrigins([.. managementOptions.AllowedOrigins]);
+        }
+        else if (builder.Environment.IsDevelopment())
+        {
+            policy.SetIsOriginAllowed(_ => true);
+        }
+        else
+        {
+            throw new InvalidOperationException(
+                "ManagementApi:AllowedOrigins must be configured in non-Development environments.");
+        }
     });
 });
 
-var managementOptions = builder.Configuration
-    .GetSection(ManagementApiOptions.SectionName)
-    .Get<ManagementApiOptions>() ?? new ManagementApiOptions();
+const string DefaultDevSigningKey = "eventmesh-dev-signing-key-change-in-production-32b";
 
 var authenticationBuilder = builder.Services.AddAuthentication(options =>
 {
@@ -71,6 +86,24 @@ if (!string.IsNullOrWhiteSpace(managementOptions.Jwt.Authority))
 }
 else
 {
+    var signingKey = managementOptions.Jwt.SigningKey;
+    if (string.IsNullOrWhiteSpace(signingKey))
+    {
+        if (!builder.Environment.IsDevelopment())
+        {
+            throw new InvalidOperationException(
+                "ManagementApi:Jwt:SigningKey must be configured when Jwt:Authority is not set.");
+        }
+
+        signingKey = DefaultDevSigningKey;
+    }
+    else if (!builder.Environment.IsDevelopment() &&
+             string.Equals(signingKey, DefaultDevSigningKey, StringComparison.Ordinal))
+    {
+        throw new InvalidOperationException(
+            "ManagementApi:Jwt:SigningKey must not use the development default in non-Development environments.");
+    }
+
     authenticationBuilder.AddJwtBearer(options =>
     {
         options.TokenValidationParameters = new TokenValidationParameters
@@ -81,8 +114,7 @@ else
             ValidateIssuerSigningKey = true,
             ValidIssuer = "eventmesh-management",
             ValidAudience = managementOptions.Jwt.Audience,
-            IssuerSigningKey = new SymmetricSecurityKey(
-                Encoding.UTF8.GetBytes("eventmesh-dev-signing-key-change-in-production-32b")),
+            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(signingKey)),
         };
     });
 }

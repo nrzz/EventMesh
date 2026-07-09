@@ -235,7 +235,10 @@ public sealed class MeshObservationService : IMeshObservationService, IDisposabl
         });
 
         _meterListener.Start();
-        SeedInitialState();
+        if (_apiOptions.DemoMode)
+        {
+            SeedInitialState();
+        }
     }
 
     /// <inheritdoc />
@@ -510,6 +513,12 @@ public sealed class MeshObservationService : IMeshObservationService, IDisposabl
     {
         ArgumentNullException.ThrowIfNull(request);
 
+        if (!_apiOptions.DemoMode)
+        {
+            throw new InvalidOperationException(
+                "Replay is not connected to a live broker transport. Enable ManagementApi:DemoMode for simulated replay operations.");
+        }
+
         var job = new ReplayJobInfo
         {
             Id = Guid.NewGuid().ToString("N"),
@@ -638,7 +647,10 @@ public sealed class MeshObservationService : IMeshObservationService, IDisposabl
         await RefreshConnectionsAsync(cancellationToken);
         RefreshPlugins();
         UpdateRates();
-        SimulateActivity();
+        if (_apiOptions.DemoMode)
+        {
+            SimulateActivity();
+        }
 
         var overview = GetOverview();
         await _hubContext.Clients.All.SendAsync("OverviewUpdated", overview, cancellationToken);
