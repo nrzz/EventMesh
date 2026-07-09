@@ -115,12 +115,12 @@ jobs:
             --configuration Release \
             --no-build \
             --verbosity normal \
-            '/p:CollectCoverage=true' \
-            '/p:CoverletOutputFormat=cobertura' \
-            '/p:CoverletOutput=./TestResults/milestone-coverage/' \
-            '/p:Include=[EventMesh.Plugin.Compression.Gzip]*,[EventMesh.Plugin.Compression.Zstd]*,[EventMesh.Plugin.Encryption.AesGcm]*,[EventMesh.Plugin.Exporter.Prometheus]*,[EventMesh.SchemaRegistry]*,[EventMesh.Security]*,[EventMesh.Plugin.Sdk]*' \
-            '/p:Threshold=50' \
-            '/p:ThresholdType=line'
+            "/p:CollectCoverage=true" \
+            "/p:CoverletOutputFormat=cobertura" \
+            "/p:CoverletOutput=./TestResults/milestone-coverage/" \
+            "/p:Include=[EventMesh.Plugin.Compression.Gzip]*%2c[EventMesh.Plugin.Compression.Zstd]*%2c[EventMesh.Plugin.Encryption.AesGcm]*%2c[EventMesh.Plugin.Exporter.Prometheus]*%2c[EventMesh.SchemaRegistry]*%2c[EventMesh.Security]*%2c[EventMesh.Plugin.Sdk]*" \
+            "/p:Threshold=50" \
+            "/p:ThresholdType=line"
 
       - name: Upload test results
         if: always()
