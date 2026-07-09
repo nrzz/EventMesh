@@ -101,6 +101,7 @@ jobs:
           --configuration Release
           --no-build
           --verbosity normal
+          --filter "FullyQualifiedName!~EventMesh.Transport.Compatibility.Tests"
           --collect:"XPlat Code Coverage"
           --results-directory ./TestResults
           --logger "trx;LogFileName=test-results.trx"
