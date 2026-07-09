@@ -102,7 +102,7 @@ public sealed class AzureServiceBusTransportUnitTests
 /// Integration compatibility tests for the Azure Service Bus transport adapter.
 /// Requires <c>EVENTMESH_AZURE_SERVICEBUS_CONNECTION_STRING</c>.
 /// </summary>
-[Trait("Category", "Integration")]
+[Trait("Category", "Cloud")]
 public sealed class AzureServiceBusTransportCompatibilityTests : TransportCompatibilityTestBase
 {
     private const string ConnectionStringEnvironmentVariable = "EVENTMESH_AZURE_SERVICEBUS_CONNECTION_STRING";
@@ -123,11 +123,9 @@ public sealed class AzureServiceBusTransportCompatibilityTests : TransportCompat
     protected override Task<IBrokerTransport> CreateTransportAsync()
     {
         var connectionString = Environment.GetEnvironmentVariable(ConnectionStringEnvironmentVariable);
-        if (string.IsNullOrWhiteSpace(connectionString))
-        {
-            throw new InvalidOperationException(
-                $"Set the {ConnectionStringEnvironmentVariable} environment variable to run Azure Service Bus integration tests.");
-        }
+        Skip.If(
+            string.IsNullOrWhiteSpace(connectionString),
+            $"Set {ConnectionStringEnvironmentVariable} to run Azure Service Bus integration tests.");
 
         var services = new ServiceCollection();
         services.AddLogging(builder => builder.SetMinimumLevel(LogLevel.Warning));

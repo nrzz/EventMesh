@@ -27,4 +27,4 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - GitHub Actions workflows for CI (build, test, lint) and benchmarks
 - MIT License
 
-[0.1.0]: https://github.com/eventmesh/eventmesh/releases/tag/v0.1.0
+[0.1.0]: https://github.com/nrzz/EventMesh/releases/tag/v0.1.0

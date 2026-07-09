@@ -22,7 +22,7 @@ Start with these resources before opening a support request:
 
 For questions, ideas, and show-and-tell:
 
-**https://github.com/eventmesh/eventmesh/discussions**
+**https://github.com/nrzz/EventMesh/discussions**
 
 Use Discussion categories:
 - **Q&A** — How-to questions and troubleshooting
@@ -45,7 +45,7 @@ Channels:
 
 For confirmed bugs and tracked feature requests:
 
-**https://github.com/eventmesh/eventmesh/issues**
+**https://github.com/nrzz/EventMesh/issues**
 
 Before opening an issue:
 1. Search existing issues for duplicates

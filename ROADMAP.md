@@ -227,7 +227,7 @@ EventMesh reaches general availability when:
 
 ## How to Follow Progress
 
-- Watch [GitHub Releases](https://github.com/eventmesh/eventmesh/releases) for version tags
+- Watch [GitHub Releases](https://github.com/nrzz/EventMesh/releases) for version tags
 - Check [CHANGELOG.md](CHANGELOG.md) for per-release notes
-- Review open [milestones](https://github.com/eventmesh/eventmesh/milestones) on GitHub
+- Review open [milestones](https://github.com/nrzz/EventMesh/milestones) on GitHub
 - Join the community on [Discord](https://discord.gg/eventmesh) (see [SUPPORT.md](SUPPORT.md))

@@ -17,7 +17,7 @@ All contributors are expected to follow our [Code of Conduct](CODE_OF_CONDUCT.md
 ### Clone and build
 
 ```bash
-git clone https://github.com/eventmesh/eventmesh.git
+git clone https://github.com/nrzz/EventMesh.git
 cd eventmesh
 docker compose -f docker/docker-compose.yml up -d
 dotnet restore EventMesh.slnx

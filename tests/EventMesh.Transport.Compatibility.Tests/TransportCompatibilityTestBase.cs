@@ -21,7 +21,7 @@ public abstract class TransportCompatibilityTestBase
 
     protected virtual TimeSpan DefaultReceiveTimeout => TimeSpan.FromSeconds(5);
 
-    [Fact]
+    [SkippableFact]
     public async Task PublishSubscribe_RoundTrip_DeliversMessage()
     {
         var context = await CreateContextAsync();
@@ -51,7 +51,7 @@ public abstract class TransportCompatibilityTestBase
         await transport.AcknowledgeAsync(receiveResult.DeliveryTag!, cts.Token);
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task RequestResponse_Correlation_ReturnsReply()
     {
         var context = await CreateContextAsync();
@@ -107,7 +107,7 @@ public abstract class TransportCompatibilityTestBase
         await transport.AcknowledgeAsync(response.DeliveryTag!, responseCts.Token);
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task DelayedDelivery_ScheduledAt_DeliversAfterDelay()
     {
         var context = await CreateContextAsync();
@@ -144,7 +144,7 @@ public abstract class TransportCompatibilityTestBase
         await transport.AcknowledgeAsync(receiveResult.DeliveryTag!, delayedCts.Token);
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task DeadLetter_OnRejectWithoutRequeue_MovesToDlq()
     {
         var context = await CreateContextAsync();
@@ -179,7 +179,7 @@ public abstract class TransportCompatibilityTestBase
         await transport.AcknowledgeAsync(deadLettered.DeliveryTag!, dlqCts.Token);
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task Retry_OnRejectWithRequeue_RedeliversMessage()
     {
         var context = await CreateContextAsync();
@@ -217,7 +217,7 @@ public abstract class TransportCompatibilityTestBase
 
     protected virtual bool SupportsReplay => true;
 
-    [Fact]
+    [SkippableFact]
     public async Task Replay_FromStore_RedeliversHistoricalMessages()
     {
         if (!SupportsReplay)
@@ -276,7 +276,7 @@ public abstract class TransportCompatibilityTestBase
         await transport.AcknowledgeAsync(replayedSecond.DeliveryTag!, replayCts.Token);
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task GetCapabilities_DeclaresExpectedFeatures()
     {
         await using var transport = await CreateTransportAsync();

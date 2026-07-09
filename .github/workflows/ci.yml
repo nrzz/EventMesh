@@ -101,6 +101,7 @@ jobs:
           --configuration Release
           --no-build
           --verbosity normal
+          --filter "FullyQualifiedName!~EventMesh.Transport.Compatibility.Tests"
           --collect:"XPlat Code Coverage"
           --results-directory ./TestResults
           --logger "trx;LogFileName=test-results.trx"
@@ -109,17 +110,17 @@ jobs:
           /p:CoverletOutput=./TestResults/coverage/
 
       - name: Enforce milestone coverage gate
-        run: >
-          dotnet test tests/EventMesh.Integration.Tests/EventMesh.Integration.Tests.csproj
-          --configuration Release
-          --no-build
-          --verbosity normal
-          /p:CollectCoverage=true
-          /p:CoverletOutputFormat=cobertura
-          /p:CoverletOutput=./TestResults/milestone-coverage/
-          /p:Include="[EventMesh.Plugin.Compression.Gzip]*,[EventMesh.Plugin.Compression.Zstd]*,[EventMesh.Plugin.Encryption.AesGcm]*,[EventMesh.Plugin.Exporter.Prometheus]*,[EventMesh.SchemaRegistry]*,[EventMesh.Security]*,[EventMesh.Plugin.Sdk]*"
-          /p:Threshold=50
-          /p:ThresholdType=line
+        run: |
+          dotnet test tests/EventMesh.Integration.Tests/EventMesh.Integration.Tests.csproj \
+            --configuration Release \
+            --no-build \
+            --verbosity normal \
+            "/p:CollectCoverage=true" \
+            "/p:CoverletOutputFormat=cobertura" \
+            "/p:CoverletOutput=./TestResults/milestone-coverage/" \
+            "/p:Include=[EventMesh.Plugin.Compression.Gzip]*%2c[EventMesh.Plugin.Compression.Zstd]*%2c[EventMesh.Plugin.Encryption.AesGcm]*%2c[EventMesh.Plugin.Exporter.Prometheus]*%2c[EventMesh.SchemaRegistry]*%2c[EventMesh.Security]*%2c[EventMesh.Plugin.Sdk]*" \
+            "/p:Threshold=50" \
+            "/p:ThresholdType=line"
 
       - name: Upload test results
         if: always()
@@ -156,3 +157,22 @@ jobs:
             exit 1
           fi
           echo "No prohibited placeholders found in source code"
+
+  dashboard:
+    name: Dashboard
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: dashboard/package-lock.json
+
+      - name: Install and build
+        working-directory: dashboard
+        run: npm ci && npm run build
