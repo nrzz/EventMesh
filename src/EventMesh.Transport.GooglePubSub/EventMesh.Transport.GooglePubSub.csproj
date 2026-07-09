@@ -1,14 +1,28 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
-
-  <ItemGroup>
-    <ProjectReference Include="..\EventMesh.Abstractions\EventMesh.Abstractions.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <PackageReference Include="Google.Cloud.PubSub.V1" />
-    <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" />
-    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" />
-    <PackageReference Include="Microsoft.Extensions.Options" />
-  </ItemGroup>
-
-</Project>
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+
+
+  <ItemGroup>
+
+    <ProjectReference Include="..\EventMesh.Abstractions\EventMesh.Abstractions.csproj" />
+
+  </ItemGroup>
+
+
+
+  <ItemGroup>
+
+    <PackageReference Include="Google.Cloud.PubSub.V1" />
+
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" />
+
+    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" />
+
+    <PackageReference Include="Microsoft.Extensions.Options" />
+
+  </ItemGroup>
+
+
+
+</Project>
+
