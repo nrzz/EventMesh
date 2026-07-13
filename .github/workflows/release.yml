@@ -125,7 +125,20 @@ jobs:
           -p:ContinuousIntegrationBuild=true
           --output ./artifacts
 
+      - name: Check NuGet credentials
+        id: nuget
+        run: |
+          if [ -n "$NUGET_KEY" ]; then
+            echo "configured=true" >> $GITHUB_OUTPUT
+          else
+            echo "configured=false" >> $GITHUB_OUTPUT
+            echo "NUGET_API_KEY not set — skipping NuGet publish."
+          fi
+        env:
+          NUGET_KEY: ${{ secrets.NUGET_API_KEY }}
+
       - name: Push to NuGet.org
+        if: steps.nuget.outputs.configured == 'true'
         run: dotnet nuget push ./artifacts/*.nupkg --api-key ${{ secrets.NUGET_API_KEY }} --source https://api.nuget.org/v3/index.json --skip-duplicate
 
       - name: Upload package artifacts
