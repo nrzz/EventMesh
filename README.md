@@ -1,8 +1,6 @@
 # EventMesh
 
 [![Build](https://img.shields.io/github/actions/workflow/status/nrzz/EventMesh/ci.yml?branch=main&label=build)](https://github.com/nrzz/EventMesh/actions/workflows/ci.yml)
-[![Benchmarks](https://img.shields.io/github/actions/workflow/status/nrzz/EventMesh/benchmark.yml?branch=main&label=benchmarks)](https://github.com/nrzz/EventMesh/actions/workflows/benchmark.yml)
-[![NuGet](https://img.shields.io/nuget/v/EventMesh.Core.svg?label=NuGet)](https://www.nuget.org/packages/EventMesh.Core/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 [![.NET](https://img.shields.io/badge/.NET-10.0-512BD4)](https://dotnet.microsoft.com/)
 [![Docs](https://img.shields.io/badge/docs-architecture-0A7ACA)](ARCHITECTURE.md)
@@ -11,7 +9,7 @@
 
 EventMesh combines the developer experience of MassTransit and NServiceBus with the interoperability of CloudEvents, the observability of OpenTelemetry, and a capability-driven emulation engine that bridges broker differences transparently.
 
-> **Project status:** EventMesh is under active development (v0.1.0). NuGet packages are published on [tagged releases](https://github.com/nrzz/EventMesh/releases). Broker adapters are **compatibility-tested (beta)** — see the [Broker Capability Matrix](docs/broker-capability-matrix.md) for current coverage.
+> **Project status:** EventMesh is under active development (v0.1.0). NuGet packages are not published yet; they ship with the first tagged release, and until then you reference the projects from this repository. Broker adapters are **compatibility-tested (beta)** — see the [Broker Capability Matrix](docs/broker-capability-matrix.md) for current coverage.
 
 ## Features
 
@@ -31,14 +29,22 @@ EventMesh combines the developer experience of MassTransit and NServiceBus with 
 - [.NET 10 SDK](https://dotnet.microsoft.com/download)
 - [Docker](https://www.docker.com/) (for local brokers and integration tests)
 
-### Install packages
+### Add EventMesh to your project
+
+EventMesh is not on NuGet yet. Until the first tagged release, clone the repository and reference the projects directly from your own project folder:
+
+```bash
+git clone https://github.com/nrzz/EventMesh.git
+dotnet add reference EventMesh/src/EventMesh.Core/EventMesh.Core.csproj
+dotnet add reference EventMesh/src/EventMesh.Transport.RabbitMQ/EventMesh.Transport.RabbitMQ.csproj
+```
+
+NuGet packages are published when a version tag (for example `v0.1.0`) is pushed. After the first release, the usual install applies:
 
 ```bash
 dotnet add package EventMesh.Core
 dotnet add package EventMesh.Transport.RabbitMQ
 ```
-
-NuGet packages are published when a version tag (for example `v0.1.0`) is pushed. Until the first release, reference projects from this repository.
 
 ### Start local infrastructure
 
