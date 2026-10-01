@@ -19,7 +19,9 @@ spec:
     spec:
       containers:
         - name: management-api
-          image: ghcr.io/eventmesh/management-api:latest
+          # No image is published yet. Build one from docker/Dockerfile.management-api
+          # and point this at a registry you control.
+          image: ghcr.io/nrzz/eventmesh-management-api:latest
           imagePullPolicy: IfNotPresent
           ports:
             - name: http

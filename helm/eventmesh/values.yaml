@@ -1,7 +1,9 @@
 replicaCount: 2
 
 image:
-  repository: ghcr.io/eventmesh/management-api
+  # No image is published yet. Build one from docker/Dockerfile.management-api,
+  # push it to a registry you control, and set repository and tag to match.
+  repository: ghcr.io/nrzz/eventmesh-management-api
   tag: latest
   pullPolicy: IfNotPresent
 
