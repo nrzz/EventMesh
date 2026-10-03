@@ -160,10 +160,16 @@ EventMesh/
 ├── src/                    # Core libraries and transport adapters
 ├── tests/                  # Unit, integration, and compatibility tests
 ├── benchmarks/             # BenchmarkDotNet performance suite
+├── samples/                # Runnable samples (BasicPublishSubscribe, BrokerSwitching)
+├── plugins/                # Compression, encryption, and exporter plugins
 ├── cli/                    # eventmesh CLI tool
 ├── sdk/                    # Plugin SDK
 ├── dashboard/              # React management UI (Milestone 10)
 ├── docker/                 # Local development infrastructure
+├── helm/                   # Helm chart
+├── kubernetes/             # Raw Kubernetes manifests
+├── terraform/              # Terraform configurations for AWS and Azure
+├── scripts/                # Build, test, and benchmark scripts (PowerShell)
 ├── docs/                   # Architecture docs and ADRs
 └── .github/workflows/      # CI, release, and benchmark automation
 ```
