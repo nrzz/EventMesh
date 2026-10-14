@@ -10,6 +10,10 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <InternalsVisibleTo Include="EventMesh.Integration.Tests" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\EventMesh.Abstractions\EventMesh.Abstractions.csproj" />
     <ProjectReference Include="..\EventMesh.Core\EventMesh.Core.csproj" />
     <ProjectReference Include="..\EventMesh.Transport.InMemory\EventMesh.Transport.InMemory.csproj" />

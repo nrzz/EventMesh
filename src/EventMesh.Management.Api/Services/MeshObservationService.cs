@@ -8,6 +8,7 @@ using EventMesh.Core.Consumers;
 using EventMesh.Core.Observability;
 using EventMesh.Management.Api.Configuration;
 using EventMesh.Management.Api.Hubs;
+using EventMesh.Management.Api.Infrastructure;
 using EventMesh.Management.Api.Models;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.Extensions.Options;
@@ -322,7 +323,10 @@ public sealed class MeshObservationService : IMeshObservationService, IDisposabl
             _topics[request.Name] = topic;
         }
 
-        _logger.LogInformation("Created topic {TopicName} on transport {Transport}", request.Name, transport);
+        _logger.LogInformation(
+            "Created topic {TopicName} on transport {Transport}",
+            LogSanitizer.Sanitize(request.Name),
+            LogSanitizer.Sanitize(transport));
         return topic;
     }
 
@@ -381,7 +385,10 @@ public sealed class MeshObservationService : IMeshObservationService, IDisposabl
             _queues[request.Name] = queue;
         }
 
-        _logger.LogInformation("Created queue {QueueName} on transport {Transport}", request.Name, transport);
+        _logger.LogInformation(
+            "Created queue {QueueName} on transport {Transport}",
+            LogSanitizer.Sanitize(request.Name),
+            LogSanitizer.Sanitize(transport));
         return queue;
     }
 

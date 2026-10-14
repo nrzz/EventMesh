@@ -18,26 +18,69 @@ import type {
 
 const SETTINGS_KEY = 'eventmesh.dashboard.settings';
 
-const defaultSettings: DashboardSettings = {
-  apiBaseUrl: import.meta.env.VITE_API_BASE_URL ?? '',
-  apiKey: import.meta.env.VITE_API_KEY ?? '',
-  refreshIntervalMs: 5000,
-};
+/**
+ * The settings that may be persisted in the browser. The API key is deliberately absent: it is a
+ * credential, so it is never written to localStorage or sessionStorage.
+ */
+type PersistedSettings = Pick<DashboardSettings, 'apiBaseUrl' | 'refreshIntervalMs'>;
 
-function getSettings(): DashboardSettings {
+// Key entered on the Settings page. It lives in memory for the life of the page only, so it is gone
+// after a reload; until one is entered the key baked in at build time (VITE_API_KEY) is used.
+let inMemoryApiKey: string | undefined;
+
+function getDefaultSettings(): DashboardSettings {
+  return {
+    apiBaseUrl: import.meta.env.VITE_API_BASE_URL ?? '',
+    apiKey: import.meta.env.VITE_API_KEY ?? '',
+    refreshIntervalMs: 5000,
+  };
+}
+
+function readPersistedSettings(): Partial<PersistedSettings> {
   try {
     const stored = localStorage.getItem(SETTINGS_KEY);
     if (!stored) {
-      return defaultSettings;
+      return {};
     }
-    return { ...defaultSettings, ...JSON.parse(stored) };
+
+    const parsed = JSON.parse(stored) as Record<string, unknown>;
+    const persisted: Partial<PersistedSettings> = {};
+    if (typeof parsed.apiBaseUrl === 'string') {
+      persisted.apiBaseUrl = parsed.apiBaseUrl;
+    }
+    if (typeof parsed.refreshIntervalMs === 'number') {
+      persisted.refreshIntervalMs = parsed.refreshIntervalMs;
+    }
+
+    // Earlier builds persisted the whole settings object, API key included. Rewrite the entry
+    // without it so a key saved by an old build does not linger in the browser.
+    if (Object.prototype.hasOwnProperty.call(parsed, 'apiKey')) {
+      localStorage.setItem(SETTINGS_KEY, JSON.stringify(persisted));
+    }
+
+    return persisted;
   } catch {
-    return defaultSettings;
+    return {};
   }
 }
 
+function getSettings(): DashboardSettings {
+  const defaults = getDefaultSettings();
+  return {
+    ...defaults,
+    ...readPersistedSettings(),
+    apiKey: inMemoryApiKey ?? defaults.apiKey,
+  };
+}
+
 export function saveSettings(settings: DashboardSettings): void {
-  localStorage.setItem(SETTINGS_KEY, JSON.stringify(settings));
+  inMemoryApiKey = settings.apiKey;
+
+  const persisted: PersistedSettings = {
+    apiBaseUrl: settings.apiBaseUrl,
+    refreshIntervalMs: settings.refreshIntervalMs,
+  };
+  localStorage.setItem(SETTINGS_KEY, JSON.stringify(persisted));
 }
 
 export function getDashboardSettings(): DashboardSettings {
