@@ -39,6 +39,10 @@ export function SettingsPage() {
               placeholder="X-Api-Key header value"
               className="mt-1 w-full rounded-lg border border-slate-700 bg-slate-950 px-3 py-2 text-sm"
             />
+            <span className="mt-1 block text-xs text-slate-500">
+              Kept in memory for this tab only and never saved to the browser. Enter it again after
+              reloading the page.
+            </span>
           </label>
 
           <label className="block text-sm">

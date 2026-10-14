@@ -40,7 +40,8 @@ export function useSignalR() {
 
     const connection = new HubConnectionBuilder()
       .withUrl(hubUrl, {
-        accessTokenFactory: () => settings.apiKey,
+        // Read at call time so a key entered on the Settings page applies on the next (re)connect.
+        accessTokenFactory: () => getDashboardSettings().apiKey,
         headers: settings.apiKey ? { 'X-Api-Key': settings.apiKey } : undefined,
       })
       .withAutomaticReconnect([0, 2000, 5000, 10000])
