@@ -28,6 +28,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\src\EventMesh.Core\EventMesh.Core.csproj" />
+    <ProjectReference Include="..\..\src\EventMesh.Management.Api\EventMesh.Management.Api.csproj" />
     <ProjectReference Include="..\..\src\EventMesh.SchemaRegistry\EventMesh.SchemaRegistry.csproj" />
     <ProjectReference Include="..\..\src\EventMesh.Security\EventMesh.Security.csproj" />
     <ProjectReference Include="..\..\src\EventMesh.Transport.InMemory\EventMesh.Transport.InMemory.csproj" />
